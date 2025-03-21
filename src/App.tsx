@@ -1,151 +1,162 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Loader2, CheckCircle2, XCircle } from 'lucide-react'
-import { validateEmail } from './lib/utils'
+import { motion } from 'framer-motion'
+import { Moon, Sun, Menu } from 'lucide-react'
 
 function App() {
-  const [email, setEmail] = useState('')
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
-  const [errorMessage, setErrorMessage] = useState('')
+  const [isDark, setIsDark] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!validateEmail(email)) {
-      setStatus('error')
-      setErrorMessage('Please enter a valid email')
-      return
-    }
-
-    setStatus('loading')
-    
-    // Simulate API call
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      setStatus('success')
-      setEmail('')
-    } catch (error) {
-      setStatus('error')
-      setErrorMessage('Something went wrong. Please try again.')
-    }
+  const toggleTheme = () => {
+    setIsDark(!isDark)
+    document.documentElement.classList.toggle('dark')
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white relative overflow-hidden">
-      {/* Animated background shapes */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            rotate: [0, 90, 0],
-            opacity: [0.3, 0.2, 0.3]
-          }}
-          transition={{ duration: 15, repeat: Infinity }}
-          className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-blue-500/20 to-transparent rounded-full"
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.3, 1],
-            rotate: [0, -90, 0],
-            opacity: [0.2, 0.3, 0.2]
-          }}
-          transition={{ duration: 20, repeat: Infinity }}
-          className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-cyan-500/20 to-transparent rounded-full"
-        />
-      </div>
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Navigation */}
+      <nav className="fixed w-full backdrop-blur-sm bg-background/80 z-50 border-b">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="text-2xl font-bold"
+          >
+            Logo
+          </motion.div>
 
-      <div className="container mx-auto px-4 py-16 relative">
-        <div className="max-w-3xl mx-auto text-center">
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center space-x-8">
+            <a href="#features" className="hover:text-primary transition-colors">Features</a>
+            <a href="#about" className="hover:text-primary transition-colors">About</a>
+            <a href="#contact" className="hover:text-primary transition-colors">Contact</a>
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-full hover:bg-accent transition-colors"
+            >
+              {isDark ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden p-2"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <Menu size={24} />
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="md:hidden border-t"
+          >
+            <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
+              <a href="#features" className="hover:text-primary transition-colors">Features</a>
+              <a href="#about" className="hover:text-primary transition-colors">About</a>
+              <a href="#contact" className="hover:text-primary transition-colors">Contact</a>
+            </div>
+          </motion.div>
+        )}
+      </nav>
+
+      {/* Hero Section */}
+      <section className="pt-32 pb-16">
+        <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ delay: 0.2 }}
+            className="max-w-3xl mx-auto text-center"
           >
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-cyan-300 text-transparent bg-clip-text">
-              Join the Waitlist
+            <h1 className="h1 mb-6">
+              Welcome to the Future of Web Design
             </h1>
-            <p className="text-lg md:text-xl text-slate-300 mb-12">
-              Be the first to experience our revolutionary platform. Sign up now and get early access.
+            <p className="text-xl text-muted-foreground mb-8">
+              Create beautiful, responsive websites with modern animations and seamless interactions.
             </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="max-w-md mx-auto"
-          >
-            <form onSubmit={handleSubmit} className="relative">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                className="w-full px-6 py-4 rounded-lg bg-white/10 border border-white/20 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all"
-                disabled={status === 'loading' || status === 'success'}
-              />
-              <button
-                type="submit"
-                disabled={status === 'loading' || status === 'success'}
-                className="mt-4 w-full md:w-auto md:absolute md:right-2 md:top-2 px-6 py-2 md:py-2 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-lg font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
-              >
-                {status === 'loading' ? (
-                  <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-                ) : status === 'success' ? (
-                  <CheckCircle2 className="w-5 h-5 mx-auto" />
-                ) : (
-                  'Join Waitlist'
-                )}
-              </button>
-            </form>
-
-            <AnimatePresence mode="wait">
-              {status === 'error' && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="mt-4 text-red-400 flex items-center justify-center gap-2"
-                >
-                  <XCircle className="w-5 h-5" />
-                  <span>{errorMessage}</span>
-                </motion.div>
-              )}
-              {status === 'success' && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="mt-4 text-green-400 flex items-center justify-center gap-2"
-                >
-                  <CheckCircle2 className="w-5 h-5" />
-                  <span>You're on the list! We'll be in touch soon.</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8"
-          >
-            <div className="p-6 rounded-lg bg-white/5 border border-white/10">
-              <div className="text-3xl font-bold text-cyan-400 mb-2">1000+</div>
-              <div className="text-slate-300">People Waiting</div>
-            </div>
-            <div className="p-6 rounded-lg bg-white/5 border border-white/10">
-              <div className="text-3xl font-bold text-cyan-400 mb-2">24/7</div>
-              <div className="text-slate-300">Support</div>
-            </div>
-            <div className="p-6 rounded-lg bg-white/5 border border-white/10">
-              <div className="text-3xl font-bold text-cyan-400 mb-2">100%</div>
-              <div className="text-slate-300">Satisfaction</div>
-            </div>
+            <button className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity">
+              Get Started
+            </button>
           </motion.div>
         </div>
-      </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="py-16 bg-accent/20">
+        <div className="container mx-auto px-4">
+          <h2 className="h2 text-center mb-12">Amazing Features</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[1, 2, 3].map((i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="bg-background p-6 rounded-lg shadow-lg"
+              >
+                <h3 className="h3 mb-4">Feature {i}</h3>
+                <p className="text-muted-foreground">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section id="about" className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="h2 text-center mb-8">About Us</h2>
+            <p className="text-muted-foreground text-center">
+              We're passionate about creating beautiful and functional websites that help businesses grow and succeed in the digital age.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section id="contact" className="py-16 bg-accent/20">
+        <div className="container mx-auto px-4">
+          <h2 className="h2 text-center mb-12">Get in Touch</h2>
+          <div className="max-w-md mx-auto">
+            <form className="space-y-6">
+              <div>
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  className="w-full px-4 py-2 rounded-lg border bg-background"
+                />
+              </div>
+              <div>
+                <textarea
+                  placeholder="Your message"
+                  rows={4}
+                  className="w-full px-4 py-2 rounded-lg border bg-background"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:opacity-90 transition-opacity"
+              >
+                Send Message
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-8 border-t">
+        <div className="container mx-auto px-4 text-center text-muted-foreground">
+          <p>© 2023 Your Company. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   )
 }
